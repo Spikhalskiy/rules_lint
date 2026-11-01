@@ -1,6 +1,8 @@
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
+load("//lint/private:patcher_run.bzl", "patcher_run")
 load(":lint_test_no_report_test.bzl", "no_report_test", "skipped_lint_test")
 load(":lint_test_xml.bzl", "fake_lint_test")
+load(":patcher_env_test.bzl", "patcher_env_test")
 
 sh_test(
     name = "clang_tidy_wrapper_test",
@@ -46,4 +48,17 @@ sh_test(
     args = ["$(rlocationpath :fake_lint)"],
     data = [":fake_lint"],
     deps = ["@bazel_tools//tools/bash/runfiles"],
+)
+
+# Only analyzed, by patcher_env_test below.
+patcher_run(
+    name = "patcher",
+    files_to_diff = ["clang_tidy_wrapper_test.sh"],
+    tags = ["manual"],
+    tool = "//lint:clang_tidy_wrapper",
+)
+
+patcher_env_test(
+    name = "patcher_env_test",
+    target_under_test = ":patcher",
 )
