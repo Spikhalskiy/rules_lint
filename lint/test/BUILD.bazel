@@ -1,3 +1,5 @@
+load("@bazel_lib//lib:diff_test.bzl", "diff_test")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("//lint/private:patcher_run.bzl", "patcher_run")
 load(":lint_test_no_report_test.bzl", "no_report_test", "skipped_lint_test")
@@ -61,4 +63,24 @@ patcher_run(
 patcher_env_test(
     name = "patcher_env_test",
     target_under_test = ":patcher",
+)
+
+sh_binary(
+    name = "patcher_path_linter",
+    srcs = ["patcher_path_linter.sh"],
+)
+
+# The patcher passes PATH on to the linter it runs.
+patcher_run(
+    name = "patcher_path.patch",
+    testonly = True,
+    files_to_diff = ["patcher_path_input.txt"],
+    tool = ":patcher_path_linter",
+    tool_args = ["lint/test/patcher_path_input.txt"],
+)
+
+diff_test(
+    name = "patcher_path_test",
+    file1 = ":patcher_path.patch",
+    file2 = "patcher_path.patch.expected",
 )
