@@ -47,6 +47,12 @@ bazel_dep(name = "rules_buf", version = "0.5.2")
 tel = use_extension("@aspect_tools_telemetry//:extension.bzl", "telemetry")
 use_repo(tel, "aspect_tools_telemetry_report")
 
+bazel_lib_toolchains = use_extension("@bazel_lib//lib:extensions.bzl", "toolchains")
+bazel_lib_toolchains.coreutils()
+use_repo(bazel_lib_toolchains, "coreutils_toolchains")
+
+register_toolchains("@coreutils_toolchains//:all")
+
 multitool = use_extension("@rules_multitool//multitool:extension.bzl", "multitool")
 multitool.hub(lockfile = "//format:multitool.lock.json")
 multitool.hub(lockfile = "//lint:multitool.lock.json")

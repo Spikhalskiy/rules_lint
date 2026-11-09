@@ -47,16 +47,6 @@ async function sync(src, dst, subdir, filesToDiff) {
   }
 }
 
-// The linter gets only its configured env, plus PATH so that a linter that is
-// a shell script (clang-tidy's wrapper, say) can find coreutils.
-function linterEnv(env) {
-  const out = { ...(env || {}) };
-  if (out.PATH === undefined && process.env.PATH !== undefined) {
-    out.PATH = process.env.PATH;
-  }
-  return out;
-}
-
 async function main(args, sandbox) {
   const config = JSON.parse(await fs.promises.readFile(args[0]));
   const spawnArgs =
@@ -90,7 +80,7 @@ async function main(args, sandbox) {
   const ret = childProcess.spawnSync(config.linter, spawnArgs, {
     stdio: "inherit",
     cwd: sandbox,
-    env: linterEnv(config.env),
+    env: config.env || {},
   });
 
   // Check if we failed to spawn the process.
